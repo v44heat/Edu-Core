@@ -23,10 +23,7 @@
 ### 🔐 Login Page
 > Split-panel design with quick demo login buttons for all four roles — one click to log in as Super Admin, Admin, Teacher, or Student
 
-<img width="1909" height="1072" alt="EduCore — School Management System - Google Chrome 13_03_2026 05_08_45 AM" src="https://github.com/user-attachments/assets/b505ba2f-47ad-43fe-b900-6f4fe5b49916" />
-<img width="1909" height="1072" alt="EduCore — School Management System - Google Chrome 13_03_2026 05_08_34 AM" src="https://github.com/user-attachments/assets/85791b94-c454-4ee0-89b6-8fcec3307189" />
-<img width="1909" height="1072" alt="EduCore — School Management System - Google Chrome 13_03_2026 05_08_25 AM" src="https://github.com/user-attachments/assets/b143449b-c602-4cd1-b5ac-6721ff84d577" />
-<img width="1909" height="1072" alt="EduCore — School Management System - Google Chrome 13_03_2026 05_08_06 AM" src="https://github.com/user-attachments/assets/8ad29234-2039-46a2-b483-cb6b6ee3a1be" />
+
 <img width="1909" height="1072" alt="EduCore — School Management System - Google Chrome 13_03_2026 05_07_47 AM" src="https://github.com/user-attachments/assets/27d2df0a-dc86-49ca-8c05-7c5f77e33747" />
 
 
