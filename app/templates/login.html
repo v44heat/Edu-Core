@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduCore — School Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d14;
+    --paper: #f7f5f0;
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+    --gold: #d97706;
+    --success: #059669;
+    --danger: #dc2626;
+    --muted: #6b7280;
+    --border: #e5e0d8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ink);
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+  }
+  /* Left panel */
+  .hero {
+    position: relative;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0d0d14 100%);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(37,99,235,0.25) 0%, transparent 70%);
+    top: -100px; left: -100px;
+    border-radius: 50%;
+    animation: pulse 6s ease-in-out infinite;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(217,119,6,0.15) 0%, transparent 70%);
+    bottom: -50px; right: -50px;
+    border-radius: 50%;
+    animation: pulse 8s ease-in-out infinite reverse;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+  }
+  .logo {
+    display: flex; align-items: center; gap: 12px;
+    position: relative; z-index: 2;
+  }
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+  .logo-text { color: white; font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
+  .logo-sub { color: rgba(255,255,255,0.4); font-size: 11px; text-transform: uppercase; letter-spacing: 2px; }
+
+  .hero-content { position: relative; z-index: 2; }
+  .hero-content h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 4vw, 52px);
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .hero-content h1 span { color: #60a5fa; }
+  .hero-content p { color: rgba(255,255,255,0.5); font-size: 16px; line-height: 1.7; max-width: 380px; }
+
+  .stats-row {
+    display: flex; gap: 30px;
+    position: relative; z-index: 2;
+  }
+  .stat { border-left: 2px solid rgba(255,255,255,0.1); padding-left: 16px; }
+  .stat-num { color: white; font-size: 26px; font-weight: 700; }
+  .stat-label { color: rgba(255,255,255,0.4); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+  /* Right panel */
+  .form-panel {
+    background: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    padding: 60px 50px;
+    position: relative;
+  }
+  .form-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+  }
+  .login-box { width: 100%; max-width: 400px; }
+  .login-box h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px; color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .login-box p.subtitle { color: var(--muted); font-size: 14px; margin-bottom: 36px; }
+
+  .form-group { margin-bottom: 20px; }
+  label {
+    display: block; font-size: 13px; font-weight: 500;
+    color: var(--ink); margin-bottom: 7px; letter-spacing: 0.3px;
+  }
+  .input-wrap { position: relative; }
+  .input-wrap span {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 16px; pointer-events: none;
+  }
+  input[type="text"], input[type="password"] {
+    width: 100%; padding: 13px 14px 13px 42px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+  .toggle-pw {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    cursor: pointer; color: var(--muted); font-size: 14px;
+    background: none; border: none; padding: 0;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .toggle-pw:hover { color: var(--accent); }
+
+  .btn-login {
+    width: 100%; padding: 14px;
+    background: var(--accent);
+    color: white; border: none; border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.3px;
+    margin-top: 8px;
+  }
+  .btn-login:hover { background: #1d4ed8; }
+  .btn-login:active { transform: scale(0.99); }
+  .btn-login:disabled { background: #93c5fd; cursor: not-allowed; }
+
+  .demo-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-top: 28px;
+  }
+  .demo-btn {
+    padding: 9px 12px;
+    background: white; border: 1.5px solid var(--border);
+    border-radius: 8px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 12px;
+    color: var(--muted); text-align: left;
+    transition: all 0.15s;
+  }
+  .demo-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .demo-btn strong { display: block; color: var(--ink); font-weight: 600; font-size: 13px; }
+  .demo-label { text-align: center; color: var(--muted); font-size: 12px; margin-top: 16px; }
+  .demo-label span { font-weight: 600; color: var(--ink); }
+
+  .error-msg {
+    background: #fef2f2; border: 1px solid #fecaca;
+    color: var(--danger); padding: 10px 14px; border-radius: 8px;
+    font-size: 13px; margin-bottom: 16px; display: none;
+  }
+
+  @media (max-width: 768px) {
+    body { grid-template-columns: 1fr; }
+    .hero { display: none; }
+    .form-panel { padding: 40px 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="logo">
+    <div class="logo-icon">🎓</div>
+    <div>
+      <div class="logo-text">EduCore</div>
+      <div class="logo-sub">School Management</div>
+    </div>
+  </div>
+  <div class="hero-content">
+    <h1>Powering<br><span>Modern Education</span><br>Management</h1>
+    <p>A comprehensive platform for students, teachers, and administrators to streamline school operations with clarity and efficiency.</p>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num">500+</div><div class="stat-label">Students</div></div>
+    <div class="stat"><div class="stat-num">40+</div><div class="stat-label">Teachers</div></div>
+    <div class="stat"><div class="stat-num">98%</div><div class="stat-label">Satisfaction</div></div>
+  </div>
+</div>
+
+<div class="form-panel">
+  <div class="login-box">
+    <h2>Welcome back</h2>
+    <p class="subtitle">Sign in to your account to continue</p>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="form-group">
+      <label for="username">Username or Email</label>
+      <div class="input-wrap">
+        <span>👤</span>
+        <input type="text" id="username" placeholder="Enter username or email" autocomplete="username">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <div class="input-wrap">
+        <span>🔑</span>
+        <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
+        <button class="toggle-pw" onclick="togglePw()" id="toggleBtn">Show</button>
+      </div>
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">Sign In</button>
+
+    <p style="text-align:center; margin-top:20px; font-size:12px; color:var(--muted);">— Quick Demo Login —</p>
+    <div class="demo-grid">
+      <button class="demo-btn" onclick="fillDemo('superadmin','Admin@1234')">
+        <strong>Super Admin</strong>superadmin
+      </button>
+      <button class="demo-btn" onclick="fillDemo('admin','Admin@1234')">
+        <strong>Admin</strong>admin
+      </button>
+      <button class="demo-btn" onclick="fillDemo('john.doe','Teacher@1234')">
+        <strong>Teacher</strong>john.doe
+      </button>
+      <button class="demo-btn" onclick="fillDemo('alice','Student@1234')">
+        <strong>Student</strong>alice
+      </button>
+    </div>
+    <p class="demo-label">All demo passwords: <span>*@1234</span></p>
+  </div>
+</div>
+
+<script>
+const API = '/api/v1';
+
+function fillDemo(u, p) {
+  document.getElementById('username').value = u;
+  document.getElementById('password').value = p;
+}
+
+function togglePw() {
+  const inp = document.getElementById('password');
+  const btn = document.getElementById('toggleBtn');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? 'Show' : 'Hide';
+}
+
+async function doLogin() {
+  const btn = document.getElementById('loginBtn');
+  const errDiv = document.getElementById('errorMsg');
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+
+  if (!username || !password) {
+    showError('Please enter username and password');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  errDiv.style.display = 'none';
+
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showError(data.detail || 'Login failed');
+      return;
+    }
+    localStorage.setItem('access_token', data.access_token);
+    localStorage.setItem('refresh_token', data.refresh_token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    window.location.href = '/dashboard';
+  } catch(e) {
+    showError('Connection error. Please try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// Redirect if already logged in
+if (localStorage.getItem('access_token')) {
+  window.location.href = '/dashboard';
+}
+</script>
+</body>
+</html>

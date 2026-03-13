@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduCore — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #f0ede8;
+  --surface: #ffffff;
+  --surface2: #f7f4f0;
+  --ink: #111118;
+  --ink2: #3d3d4a;
+  --muted: #8c8c9a;
+  --border: #e2ddd7;
+  --blue: #2563eb;
+  --blue-light: #eff6ff;
+  --green: #059669;
+  --green-light: #ecfdf5;
+  --amber: #d97706;
+  --amber-light: #fffbeb;
+  --red: #dc2626;
+  --red-light: #fef2f2;
+  --purple: #7c3aed;
+  --purple-light: #f5f3ff;
+  --sidebar-w: 260px;
+  --header-h: 64px;
+  --radius: 14px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  display: flex;
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--ink);
+  height: 100vh;
+  position: fixed;
+  top: 0; left: 0;
+  display: flex; flex-direction: column;
+  z-index: 100;
+  transition: transform 0.3s;
+}
+.sidebar-logo {
+  padding: 24px 24px 20px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.logo-box {
+  width: 40px; height: 40px;
+  background: var(--blue);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.logo-name { color: white; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; }
+.logo-version { color: rgba(255,255,255,0.3); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; }
+
+.sidebar-user {
+  padding: 16px 20px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.user-avatar {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--blue);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+  font-weight: 700; color: white;
+}
+.user-name { color: white; font-size: 14px; font-weight: 500; line-height: 1.3; }
+.user-role {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  padding: 2px 8px; border-radius: 20px; font-weight: 600;
+  display: inline-block; margin-top: 2px;
+}
+.role-super_admin { background: #fbbf24; color: #78350f; }
+.role-admin { background: #a78bfa; color: #4c1d95; }
+.role-teacher { background: #34d399; color: #064e3b; }
+.role-student { background: #60a5fa; color: #1e3a8a; }
+
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 0; }
+.nav-section {
+  padding: 10px 20px 4px;
+  color: rgba(255,255,255,0.25);
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; margin: 1px 10px;
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  border-radius: 10px;
+  font-size: 14px; font-weight: 400;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.nav-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+.nav-item.active { background: var(--blue); color: white; font-weight: 500; }
+.nav-icon { font-size: 17px; width: 22px; text-align: center; }
+.nav-badge {
+  margin-left: auto; background: var(--red);
+  color: white; font-size: 11px; font-weight: 600;
+  padding: 2px 7px; border-radius: 20px; min-width: 20px; text-align: center;
+}
+
+.sidebar-footer {
+  padding: 16px 10px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.btn-logout {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; width: 100%;
+  color: rgba(255,255,255,0.4);
+  background: none; border: none; border-radius: 10px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-logout:hover { background: rgba(220,38,38,0.15); color: #fca5a5; }
+
+/* ── Main ─────────────────────────────────────────────────────────────────── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1; min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+.header {
+  height: var(--header-h);
+  background: white;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 28px;
+  position: sticky; top: 0; z-index: 50;
+  gap: 16px;
+}
+.menu-toggle {
+  display: none; background: none; border: none;
+  font-size: 20px; cursor: pointer; color: var(--ink2);
+}
+.header-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; }
+.search-bar {
+  margin-left: auto; position: relative;
+}
+.search-bar input {
+  padding: 8px 14px 8px 36px;
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 10px; outline: none;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink);
+  width: 220px; transition: all 0.2s;
+}
+.search-bar input:focus { border-color: var(--blue); width: 280px; }
+.search-bar::before {
+  content: '🔍'; position: absolute; left: 11px; top: 50%;
+  transform: translateY(-50%); font-size: 14px; pointer-events: none;
+}
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.icon-btn {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--bg); border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 17px; position: relative;
+  transition: all 0.15s;
+}
+.icon-btn:hover { border-color: var(--blue); background: var(--blue-light); }
+.badge-dot {
+  position: absolute; top: 7px; right: 7px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--red); border: 2px solid white;
+}
+
+/* ── Content ──────────────────────────────────────────────────────────────── */
+.content { padding: 28px; flex: 1; }
+
+.page-header { margin-bottom: 24px; }
+.page-header h1 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; }
+.page-header p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+/* ── Stat Cards ───────────────────────────────────────────────────────────── */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--surface); border-radius: var(--radius);
+  padding: 22px; box-shadow: var(--shadow);
+  display: flex; align-items: flex-start; gap: 16px;
+  border: 1px solid var(--border);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.stat-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.stat-icon.blue { background: var(--blue-light); }
+.stat-icon.green { background: var(--green-light); }
+.stat-icon.amber { background: var(--amber-light); }
+.stat-icon.purple { background: var(--purple-light); }
+.stat-info { flex: 1; }
+.stat-label { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 28px; font-weight: 700; font-family: 'Syne', sans-serif; margin: 4px 0; line-height: 1; }
+.stat-change { font-size: 12px; }
+.stat-change.up { color: var(--green); }
+.stat-change.down { color: var(--red); }
+
+/* ── Charts Grid ──────────────────────────────────────────────────────────── */
+.chart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+.card {
+  background: var(--surface); border-radius: var(--radius);
+  padding: 22px; box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px;
+}
+.card-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+.card-action {
+  font-size: 12px; color: var(--blue); text-decoration: none;
+  font-weight: 500; cursor: pointer;
+}
+.card-action:hover { text-decoration: underline; }
+
+/* ── Tables ───────────────────────────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left; padding: 10px 14px;
+  font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.7px; font-weight: 600;
+  color: var(--muted); border-bottom: 1.5px solid var(--border);
+}
+td { padding: 12px 14px; font-size: 14px; border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface2); }
+
+/* ── Badges ───────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; text-transform: capitalize;
+}
+.badge-green { background: var(--green-light); color: var(--green); }
+.badge-red { background: var(--red-light); color: var(--red); }
+.badge-amber { background: var(--amber-light); color: var(--amber); }
+.badge-blue { background: var(--blue-light); color: var(--blue); }
+.badge-purple { background: var(--purple-light); color: var(--purple); }
+
+/* ── Two-column content row ───────────────────────────────────────────────── */
+.content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.content-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+
+/* ── Announcements ────────────────────────────────────────────────────────── */
+.announcement-item {
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+}
+.announcement-item:last-child { border-bottom: none; padding-bottom: 0; }
+.ann-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.ann-meta { font-size: 12px; color: var(--muted); }
+.pin-icon { color: var(--amber); font-size: 13px; }
+
+/* ── Activity log ────────────────────────────────────────────────────────── */
+.activity-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.activity-item:last-child { border-bottom: none; }
+.act-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.act-info { flex: 1; }
+.act-action { font-size: 13px; font-weight: 500; text-transform: capitalize; }
+.act-time { font-size: 11px; color: var(--muted); }
+
+/* ── Progress bars ────────────────────────────────────────────────────────── */
+.progress-bar {
+  height: 6px; border-radius: 3px;
+  background: var(--border); overflow: hidden; margin-top: 6px;
+}
+.progress-fill {
+  height: 100%; border-radius: 3px;
+  background: var(--blue); transition: width 0.8s ease;
+}
+.progress-fill.green { background: var(--green); }
+.progress-fill.amber { background: var(--amber); }
+.progress-fill.red { background: var(--red); }
+
+/* ── Forms ────────────────────────────────────────────────────────────────── */
+.form-row { display: grid; gap: 16px; margin-bottom: 16px; }
+.form-row.two { grid-template-columns: 1fr 1fr; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+.form-control {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink);
+  outline: none; background: white; transition: border-color 0.2s;
+}
+.form-control:focus { border-color: var(--blue); }
+select.form-control { cursor: pointer; }
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.btn {
+  padding: 9px 18px; border-radius: 8px; border: none;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s; display: inline-flex;
+  align-items: center; gap: 6px;
+}
+.btn-primary { background: var(--blue); color: white; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-success { background: var(--green); color: white; }
+.btn-success:hover { background: #047857; }
+.btn-danger { background: var(--red); color: white; }
+.btn-outline { background: white; border: 1.5px solid var(--border); color: var(--ink2); }
+.btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+
+/* ── Modal ────────────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; display: none;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white; border-radius: var(--radius); padding: 28px;
+  width: 90%; max-width: 520px; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: slideUp 0.2s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.modal-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; }
+.modal-close {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--bg); border: none; cursor: pointer;
+  font-size: 18px; display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+.tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--bg); padding: 4px; border-radius: 10px; }
+.tab {
+  flex: 1; padding: 8px 16px; border-radius: 7px;
+  background: none; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  color: var(--muted); transition: all 0.15s;
+}
+.tab.active { background: white; color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .chart-grid { grid-template-columns: 1fr; }
+  .content-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .menu-toggle { display: flex; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Loading ──────────────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--border) 25%, var(--bg) 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.page-section { display: none; }
+.page-section.active { display: block; }
+
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 40px 20px; color: var(--muted);
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+/* Toast */
+.toast-container {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.toast {
+  background: var(--ink); color: white;
+  padding: 12px 18px; border-radius: 10px;
+  font-size: 14px; min-width: 240px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+  display: flex; align-items: center; gap: 10px;
+}
+.toast.success { background: var(--green); }
+.toast.error { background: var(--red); }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-box">🎓</div>
+    <div>
+      <div class="logo-name">EduCore</div>
+      <div class="logo-version">v1.0.0</div>
+    </div>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-avatar" id="userInitial">?</div>
+    <div>
+      <div class="user-name" id="userName">Loading…</div>
+      <span class="user-role" id="userRoleBadge">—</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav" id="sidebarNav">
+    <div class="nav-section">Overview</div>
+    <a class="nav-item active" onclick="showPage('dashboard', this)">
+      <span class="nav-icon">📊</span> Dashboard
+    </a>
+    <div class="nav-section" id="navSectionAcademic">Academic</div>
+    <a class="nav-item" onclick="showPage('students', this)" id="navStudents">
+      <span class="nav-icon">🎒</span> Students
+    </a>
+    <a class="nav-item" onclick="showPage('teachers', this)" id="navTeachers">
+      <span class="nav-icon">👨‍🏫</span> Teachers
+    </a>
+    <a class="nav-item" onclick="showPage('classes', this)" id="navClasses">
+      <span class="nav-icon">🏫</span> Classes
+    </a>
+    <a class="nav-item" onclick="showPage('subjects', this)" id="navSubjects">
+      <span class="nav-icon">📚</span> Subjects
+    </a>
+    <div class="nav-section">Activity</div>
+    <a class="nav-item" onclick="showPage('assignments', this)">
+      <span class="nav-icon">📝</span> Assignments
+      <span class="nav-badge" id="assignBadge" style="display:none">0</span>
+    </a>
+    <a class="nav-item" onclick="showPage('grades', this)">
+      <span class="nav-icon">🏆</span> Grades
+    </a>
+    <a class="nav-item" onclick="showPage('attendance', this)">
+      <span class="nav-icon">✅</span> Attendance
+    </a>
+    <a class="nav-item" onclick="showPage('announcements', this)">
+      <span class="nav-icon">📣</span> Announcements
+    </a>
+    <a class="nav-item" onclick="showPage('fees', this)">
+      <span class="nav-icon">💳</span> Fees
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="btn-logout" onclick="logout()">
+      <span>🚪</span> Sign Out
+    </button>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <!-- Header -->
+  <header class="header">
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="header-title" id="pageTitle">Dashboard</div>
+    <div class="search-bar">
+      <input type="text" id="globalSearch" placeholder="Search anything…">
+    </div>
+    <div class="header-actions">
+      <div class="icon-btn" onclick="showPage('announcements', null)" title="Announcements">
+        📣
+      </div>
+      <div class="icon-btn" id="notifBtn" title="Notifications" onclick="loadNotifications()">
+        🔔
+        <span class="badge-dot" id="notifDot" style="display:none"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Content Pages -->
+  <div class="content">
+
+    <!-- ── DASHBOARD PAGE ── -->
+    <div class="page-section active" id="page-dashboard">
+      <div class="page-header">
+        <h1 id="dashGreeting">Good morning! 👋</h1>
+        <p>Here's what's happening at your school today</p>
+      </div>
+
+      <div class="stat-grid" id="statGrid">
+        <div class="stat-card">
+          <div class="stat-icon blue">🎒</div>
+          <div class="stat-info">
+            <div class="stat-label">Total Students</div>
+            <div class="stat-value" id="statStudents">—</div>
+            <div class="stat-change up">↑ Enrolled this year</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">👨‍🏫</div>
+          <div class="stat-info">
+            <div class="stat-label">Teachers</div>
+            <div class="stat-value" id="statTeachers">—</div>
+            <div class="stat-change up">Active staff</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon amber">🏫</div>
+          <div class="stat-info">
+            <div class="stat-label">Classes</div>
+            <div class="stat-value" id="statClasses">—</div>
+            <div class="stat-change">Academic year 2024-25</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">📚</div>
+          <div class="stat-info">
+            <div class="stat-label">Subjects</div>
+            <div class="stat-value" id="statSubjects">—</div>
+            <div class="stat-change">All departments</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Attendance Overview (Last 7 Days)</span>
+          </div>
+          <canvas id="attendanceChart" height="120"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Grade Distribution</span>
+          </div>
+          <canvas id="gradeChart" height="180"></canvas>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📣 Recent Announcements</span>
+            <a class="card-action" onclick="showPage('announcements', null)">View all</a>
+          </div>
+          <div id="announcementsList">
+            <div class="empty-state"><div class="empty-icon">📭</div><p>Loading…</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🕐 Recent Activity</span>
+          </div>
+          <div id="activityList">
+            <div class="empty-state"><div class="empty-icon">📋</div><p>Loading…</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fee summary (admin only) -->
+      <div id="feeSummaryCard" style="display:none; margin-top:16px;">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">💳 Fee Collection Summary</span>
+            <a class="card-action" onclick="showPage('fees', null)">Manage fees</a>
+          </div>
+          <div class="content-grid three">
+            <div>
+              <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Total Billed</div>
+              <div style="font-size:24px;font-weight:700;font-family:'Syne',sans-serif;" id="feeTotal">—</div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Collected</div>
+              <div style="font-size:24px;font-weight:700;font-family:'Syne',sans-serif;color:var(--green);" id="feeCollected">—</div>
+              <div class="progress-bar"><div class="progress-fill green" id="feeProgress" style="width:0%"></div></div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Outstanding</div>
+              <div style="font-size:24px;font-weight:700;font-family:'Syne',sans-serif;color:var(--red);" id="feeOutstanding">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STUDENTS PAGE ── -->
+    <div class="page-section" id="page-students">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div><h1>Students</h1><p>Manage student records and profiles</p></div>
+        <button class="btn btn-primary" id="addStudentBtn" onclick="openModal('addUserModal')" style="display:none">+ Add Student</button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <input type="text" class="form-control" placeholder="Search students…" id="studentSearch" style="width:200px" oninput="filterStudents()">
+          </div>
+          <span class="card-action" id="studentsCount">Loading…</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th><th>ID</th><th>Class</th>
+                <th>Gender</th><th>Attendance</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTableBody">
+              <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">⏳</div><p>Loading…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TEACHERS PAGE ── -->
+    <div class="page-section" id="page-teachers">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div><h1>Teachers</h1><p>Manage teaching staff</p></div>
+        <button class="btn btn-primary" onclick="openModal('addUserModal')">+ Add Teacher</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Teacher</th><th>ID</th><th>Specialization</th><th>Qualification</th><th>Hired</th><th>Actions</th></tr></thead>
+            <tbody id="teachersTableBody">
+              <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">⏳</div><p>Loading…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CLASSES PAGE ── -->
+    <div class="page-section" id="page-classes">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div><h1>Classes</h1><p>Manage school classes and sections</p></div>
+        <button class="btn btn-primary" onclick="openModal('addClassModal')">+ Add Class</button>
+      </div>
+      <div id="classesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:8px;">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading…</p></div>
+      </div>
+    </div>
+
+    <!-- ── SUBJECTS PAGE ── -->
+    <div class="page-section" id="page-subjects">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div><h1>Subjects</h1><p>Manage academic subjects</p></div>
+        <button class="btn btn-primary" onclick="openModal('addSubjectModal')">+ Add Subject</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Subject</th><th>Code</th><th>Grade Level</th><th>Credit Hours</th><th>Status</th></tr></thead>
+            <tbody id="subjectsTableBody">
+              <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">⏳</div><p>Loading…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ASSIGNMENTS PAGE ── -->
+    <div class="page-section" id="page-assignments">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div><h1>Assignments</h1><p>Track and manage assignments</p></div>
+        <button class="btn btn-primary" id="newAssignmentBtn" onclick="openModal('addAssignmentModal')" style="display:none">+ New Assignment</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Title</th><th>Subject</th><th>Class</th><th>Due Date</th><th>Max Score</th><th>Status</th></tr></thead>
+            <tbody id="assignmentsTableBody">
+              <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">⏳</div><p>Loading…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GRADES PAGE ── -->
+    <div class="page-section" id="page-grades">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div><h1>Grades & Exams</h1><p>Academic performance records</p></div>
+        <button class="btn btn-primary" id="addGradeBtn" onclick="openModal('addGradeModal')" style="display:none">+ Add Grade</button>
+      </div>
+      <div id="gradesAnalytics" style="display:none; margin-bottom:16px;">
+        <div class="content-grid three">
+          <div class="card" style="text-align:center">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Class Average</div>
+            <div style="font-size:32px;font-weight:700;font-family:'Syne',sans-serif;color:var(--blue);" id="analyticsAvg">—</div>
+          </div>
+          <div class="card" style="text-align:center">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Pass Rate</div>
+            <div style="font-size:32px;font-weight:700;font-family:'Syne',sans-serif;color:var(--green);" id="analyticsPass">—</div>
+          </div>
+          <div class="card" style="text-align:center">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Highest Score</div>
+            <div style="font-size:32px;font-weight:700;font-family:'Syne',sans-serif;color:var(--amber);" id="analyticsHigh">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Student</th><th>Subject</th><th>Exam</th><th>Score</th><th>Grade</th><th>Year</th></tr></thead>
+            <tbody id="gradesTableBody">
+              <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">⏳</div><p>Loading…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ATTENDANCE PAGE ── -->
+    <div class="page-section" id="page-attendance">
+      <div class="page-header">
+        <h1>Attendance</h1><p>Track student attendance records</p>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:13px;font-weight:500">From:</span>
+            <input type="date" class="form-control" id="attFrom" style="width:160px">
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:13px;font-weight:500">To:</span>
+            <input type="date" class="form-control" id="attTo" style="width:160px">
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="loadAttendance()">Filter</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Student</th><th>Class</th><th>Status</th><th>Notes</th></tr></thead>
+            <tbody id="attendanceTableBody">
+              <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">⏳</div><p>Loading…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ANNOUNCEMENTS PAGE ── -->
+    <div class="page-section" id="page-announcements">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div><h1>Announcements</h1><p>School-wide notices and updates</p></div>
+        <button class="btn btn-primary" id="addAnnouncementBtn" onclick="openModal('addAnnouncementModal')" style="display:none">+ Post Announcement</button>
+      </div>
+      <div id="announcementsPageList" style="display:flex;flex-direction:column;gap:14px;">
+        <div class="empty-state"><div class="empty-icon">⏳</div><p>Loading…</p></div>
+      </div>
+    </div>
+
+    <!-- ── FEES PAGE ── -->
+    <div class="page-section" id="page-fees">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div><h1>School Fees</h1><p>Manage and track fee payments</p></div>
+        <button class="btn btn-primary" id="addFeeBtn" onclick="openModal('addFeeModal')" style="display:none">+ Create Fee</button>
+      </div>
+      <div class="card">
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+          <select class="form-control" id="feeStatusFilter" style="width:160px" onchange="loadFees()">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="partial">Partial</option>
+            <option value="overdue">Overdue</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Student</th><th>Fee Type</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="feesTableBody">
+              <tr><td colspan="8"><div class="empty-state"><div class="empty-icon">⏳</div><p>Loading…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ── MODALS ────────────────────────────────────────────────────────────── -->
+
+<!-- Add User Modal -->
+<div class="modal-overlay" id="addUserModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Create User</span>
+      <button class="modal-close" onclick="closeModal('addUserModal')">✕</button>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Full Name</label><input class="form-control" id="newFullName" placeholder="John Doe"></div>
+      <div class="form-group"><label>Username</label><input class="form-control" id="newUsername" placeholder="john.doe"></div>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Email</label><input class="form-control" type="email" id="newEmail" placeholder="john@school.edu"></div>
+      <div class="form-group"><label>Phone</label><input class="form-control" id="newPhone" placeholder="+1-555-0100"></div>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Role</label>
+        <select class="form-control" id="newRole">
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Password</label><input class="form-control" type="password" id="newPassword" placeholder="Min 8 chars"></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="createUser()">Create User</button>
+  </div>
+</div>
+
+<!-- Add Class Modal -->
+<div class="modal-overlay" id="addClassModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Create Class</span>
+      <button class="modal-close" onclick="closeModal('addClassModal')">✕</button>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Class Name</label><input class="form-control" id="className" placeholder="Grade 10 - A"></div>
+      <div class="form-group"><label>Grade Level</label><input class="form-control" id="classGrade" placeholder="10"></div>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Section</label><input class="form-control" id="classSection" placeholder="A"></div>
+      <div class="form-group"><label>Academic Year</label><input class="form-control" id="classYear" value="2024-2025"></div>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Room Number</label><input class="form-control" id="classRoom" placeholder="101"></div>
+      <div class="form-group"><label>Max Students</label><input class="form-control" type="number" id="classMax" value="40"></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="createClass()">Create Class</button>
+  </div>
+</div>
+
+<!-- Add Subject Modal -->
+<div class="modal-overlay" id="addSubjectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add Subject</span>
+      <button class="modal-close" onclick="closeModal('addSubjectModal')">✕</button>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Subject Name</label><input class="form-control" id="subjectName" placeholder="Mathematics"></div>
+      <div class="form-group"><label>Subject Code</label><input class="form-control" id="subjectCode" placeholder="MATH10"></div>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Grade Level</label><input class="form-control" id="subjectGrade" placeholder="10"></div>
+      <div class="form-group"><label>Credit Hours</label><input class="form-control" type="number" id="subjectCredits" value="3"></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea class="form-control" id="subjectDesc" rows="2" placeholder="Subject description…"></textarea></div>
+    <button class="btn btn-primary" style="width:100%" onclick="createSubject()">Add Subject</button>
+  </div>
+</div>
+
+<!-- Add Grade Modal -->
+<div class="modal-overlay" id="addGradeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Record Grade</span>
+      <button class="modal-close" onclick="closeModal('addGradeModal')">✕</button>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Student ID</label><input class="form-control" type="number" id="gradeStudentId" placeholder="Student ID"></div>
+      <div class="form-group"><label>Subject ID</label><input class="form-control" type="number" id="gradeSubjectId" placeholder="Subject ID"></div>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Class ID</label><input class="form-control" type="number" id="gradeClassId" placeholder="Class ID"></div>
+      <div class="form-group"><label>Exam Type</label>
+        <select class="form-control" id="gradeExamType">
+          <option value="midterm">Midterm</option><option value="final">Final</option>
+          <option value="quiz">Quiz</option><option value="assignment">Assignment</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Exam Name</label><input class="form-control" id="gradeExamName" placeholder="Midterm Exam"></div>
+      <div class="form-group"><label>Score / Max Score</label>
+        <div style="display:flex;gap:8px;">
+          <input class="form-control" type="number" id="gradeScore" placeholder="Score">
+          <input class="form-control" type="number" id="gradeMax" value="100">
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="createGrade()">Record Grade</button>
+  </div>
+</div>
+
+<!-- Add Announcement Modal -->
+<div class="modal-overlay" id="addAnnouncementModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Post Announcement</span>
+      <button class="modal-close" onclick="closeModal('addAnnouncementModal')">✕</button>
+    </div>
+    <div class="form-group"><label>Title</label><input class="form-control" id="annTitle" placeholder="Announcement title"></div>
+    <div class="form-group" style="margin-top:12px"><label>Content</label><textarea class="form-control" id="annContent" rows="4" placeholder="Write announcement…"></textarea></div>
+    <div class="form-row two" style="margin-top:12px">
+      <div class="form-group"><label>Target Audience</label>
+        <select class="form-control" id="annTarget">
+          <option value="all">Everyone</option>
+          <option value="students">Students Only</option>
+          <option value="teachers">Teachers Only</option>
+        </select>
+      </div>
+      <div class="form-group"><label>📌 Pin?</label>
+        <select class="form-control" id="annPinned">
+          <option value="false">No</option><option value="true">Yes</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="createAnnouncement()">Post Announcement</button>
+  </div>
+</div>
+
+<!-- Add Fee Modal -->
+<div class="modal-overlay" id="addFeeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Create Fee</span>
+      <button class="modal-close" onclick="closeModal('addFeeModal')">✕</button>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Student ID</label><input class="form-control" type="number" id="feeStudentId" placeholder="Student ID"></div>
+      <div class="form-group"><label>Fee Type</label>
+        <select class="form-control" id="feeType">
+          <option>Tuition Fee</option><option>Exam Fee</option>
+          <option>Library Fee</option><option>Sports Fee</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Amount</label><input class="form-control" type="number" id="feeAmount" placeholder="1500.00"></div>
+      <div class="form-group"><label>Due Date</label><input class="form-control" type="date" id="feeDueDate"></div>
+    </div>
+    <div class="form-row two">
+      <div class="form-group"><label>Academic Year</label><input class="form-control" id="feeYear" value="2024-2025"></div>
+      <div class="form-group"><label>Term</label><input class="form-control" id="feeTerm" placeholder="Term 1"></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="createFee()">Create Fee</button>
+  </div>
+</div>
+
+<script>
+const API = '/api/v1';
+let currentUser = null;
+let token = null;
+let subjectsCache = [];
+let classesCache = [];
+let studentsCache = [];
+let teachersCache = [];
+let charts = {};
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  token = localStorage.getItem('access_token');
+  if (!token) { window.location.href = '/'; return; }
+
+  try {
+    const me = await apiFetch('/auth/me');
+    currentUser = me;
+    setupUI();
+    loadDashboard();
+    checkNotifications();
+  } catch(e) {
+    localStorage.clear();
+    window.location.href = '/';
+  }
+});
+
+function setupUI() {
+  const u = currentUser;
+  document.getElementById('userName').textContent = u.full_name;
+  document.getElementById('userInitial').textContent = u.full_name.charAt(0).toUpperCase();
+  const badge = document.getElementById('userRoleBadge');
+  badge.textContent = u.role.replace('_', ' ');
+  badge.className = `user-role role-${u.role}`;
+
+  // Greeting
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('dashGreeting').textContent = `${greet}, ${u.full_name.split(' ')[0]}! 👋`;
+
+  // Role-based nav visibility
+  const isAdmin = ['admin', 'super_admin'].includes(u.role);
+  const isTeacher = u.role === 'teacher' || isAdmin;
+  if (!isAdmin) {
+    document.getElementById('navTeachers').style.display = 'none';
+    document.getElementById('navSubjects').style.display = 'none';
+  }
+  if (u.role === 'student') {
+    document.getElementById('navStudents').style.display = 'none';
+    document.getElementById('navClasses').style.display = 'none';
+  }
+  if (isAdmin) document.getElementById('feeSummaryCard').style.display = 'block';
+  if (isAdmin || isTeacher) {
+    document.getElementById('newAssignmentBtn').style.display = 'inline-flex';
+    document.getElementById('addAnnouncementBtn').style.display = 'inline-flex';
+    document.getElementById('addGradeBtn').style.display = 'inline-flex';
+  }
+  if (isAdmin) {
+    document.getElementById('addStudentBtn').style.display = 'inline-flex';
+    document.getElementById('addFeeBtn').style.display = 'inline-flex';
+  }
+}
+
+// ── API Helper ────────────────────────────────────────────────────────────────
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      ...(opts.headers || {}),
+    },
+  });
+  if (res.status === 401) { localStorage.clear(); window.location.href = '/'; }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Request failed' }));
+    throw new Error(err.detail || 'Request failed');
+  }
+  return res.json();
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const isAdmin = ['admin', 'super_admin'].includes(currentUser.role);
+    if (isAdmin) {
+      const data = await apiFetch('/admin/dashboard');
+      document.getElementById('statStudents').textContent = data.stats.total_students;
+      document.getElementById('statTeachers').textContent = data.stats.total_teachers;
+      document.getElementById('statClasses').textContent = data.stats.total_classes;
+      document.getElementById('statSubjects').textContent = data.stats.total_subjects;
+
+      const tf = data.fees.total, cf = data.fees.collected, of = data.fees.outstanding;
+      document.getElementById('feeTotal').textContent = `$${tf.toLocaleString()}`;
+      document.getElementById('feeCollected').textContent = `$${cf.toLocaleString()}`;
+      document.getElementById('feeOutstanding').textContent = `$${of.toLocaleString()}`;
+      document.getElementById('feeProgress').style.width = `${data.fees.collection_rate}%`;
+
+      renderActivityLog(data.recent_activity);
+    } else {
+      // For teachers/students, show basic counts
+      try { const s = await apiFetch('/users/stats/overview'); document.getElementById('statStudents').textContent = s.students; document.getElementById('statTeachers').textContent = s.teachers; } catch(e) {}
+    }
+
+    loadAnnouncements();
+    renderCharts();
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function loadAnnouncements() {
+  const anns = await apiFetch('/announcements/?limit=5').catch(() => []);
+  const container = document.getElementById('announcementsList');
+  if (!anns.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>No announcements</p></div>';
+    return;
+  }
+  container.innerHTML = anns.map(a => `
+    <div class="announcement-item">
+      <div class="ann-title">${a.is_pinned ? '<span class="pin-icon">📌 </span>' : ''}${escHtml(a.title)}</div>
+      <div class="ann-meta">${new Date(a.created_at).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'})}</div>
+    </div>
+  `).join('');
+}
+
+function renderActivityLog(logs) {
+  const el = document.getElementById('activityList');
+  if (!logs || !logs.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>No recent activity</p></div>'; return;
+  }
+  const colors = { login: 'var(--green)', logout: 'var(--muted)', create: 'var(--blue)', delete: 'var(--red)' };
+  el.innerHTML = logs.map(l => `
+    <div class="activity-item">
+      <div class="act-dot" style="background:${colors[l.action] || 'var(--amber)'}"></div>
+      <div class="act-info">
+        <div class="act-action">${l.action} ${l.resource || ''}</div>
+        <div class="act-time">${timeAgo(l.time)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderCharts() {
+  // Attendance chart
+  const attCtx = document.getElementById('attendanceChart').getContext('2d');
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const today = new Date().getDay();
+  const labels = Array.from({length:7}, (_,i) => days[(today - 6 + i + 7) % 7]);
+  if (charts.attendance) charts.attendance.destroy();
+  charts.attendance = new Chart(attCtx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Present', data: [88,92,85,90,87,0,0], backgroundColor: 'rgba(5,150,105,0.8)', borderRadius: 6 },
+        { label: 'Absent', data: [12,8,15,10,13,0,0], backgroundColor: 'rgba(220,38,38,0.6)', borderRadius: 6 },
+      ]
+    },
+    options: {
+      responsive: true, plugins: { legend: { position: 'top' } },
+      scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { color: '#f0ede8' } } }
+    }
+  });
+
+  // Grade distribution
+  const gradeCtx = document.getElementById('gradeChart').getContext('2d');
+  if (charts.grade) charts.grade.destroy();
+  charts.grade = new Chart(gradeCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['A', 'B', 'C', 'D', 'F'],
+      datasets: [{ data: [35, 28, 20, 12, 5], backgroundColor: ['#059669','#2563eb','#d97706','#7c3aed','#dc2626'], borderWidth: 0, hoverOffset: 4 }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'right' } }, cutout: '65%' }
+  });
+}
+
+// ── Pages ─────────────────────────────────────────────────────────────────────
+function showPage(name, navEl) {
+  document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  if (navEl) navEl.classList.add('active');
+  document.getElementById('pageTitle').textContent = name.charAt(0).toUpperCase() + name.slice(1);
+
+  // Close sidebar on mobile
+  if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+
+  const loaders = { students: loadStudents, teachers: loadTeachers, classes: loadClasses,
+    subjects: loadSubjects, assignments: loadAssignments, grades: loadGrades,
+    attendance: loadAttendance, announcements: loadAnnouncementsPage, fees: loadFees };
+  if (loaders[name]) loaders[name]();
+}
+
+// ── Students ──────────────────────────────────────────────────────────────────
+async function loadStudents() {
+  try {
+    studentsCache = await apiFetch('/students/?limit=200');
+    renderStudents(studentsCache);
+    document.getElementById('studentsCount').textContent = `${studentsCache.length} students`;
+  } catch(e) { showEmpty('studentsTableBody', 6, e.message); }
+}
+
+function renderStudents(students) {
+  const tbody = document.getElementById('studentsTableBody');
+  if (!students.length) { showEmpty('studentsTableBody', 6, 'No students found'); return; }
+  tbody.innerHTML = students.map(s => `
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;border-radius:8px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--blue);font-size:14px;">${(s.user?.full_name||'?').charAt(0)}</div>
+        <div><div style="font-weight:500">${escHtml(s.user?.full_name||'—')}</div><div style="font-size:12px;color:var(--muted)">${escHtml(s.user?.email||'')}</div></div>
+      </div></td>
+      <td><code style="background:var(--bg);padding:3px 7px;border-radius:5px;font-size:12px">${escHtml(s.student_id)}</code></td>
+      <td>${s.class_id ? `Class #${s.class_id}` : '<span style="color:var(--muted)">—</span>'}</td>
+      <td>${s.gender ? `<span class="badge badge-blue">${s.gender}</span>` : '—'}</td>
+      <td><div class="progress-bar" style="width:80px"><div class="progress-fill green" style="width:85%"></div></div></td>
+      <td><button class="btn btn-outline btn-sm" onclick="viewStudent(${s.id})">View</button></td>
+    </tr>
+  `).join('');
+}
+
+function filterStudents() {
+  const q = document.getElementById('studentSearch').value.toLowerCase();
+  const filtered = studentsCache.filter(s =>
+    (s.user?.full_name||'').toLowerCase().includes(q) ||
+    s.student_id.toLowerCase().includes(q)
+  );
+  renderStudents(filtered);
+}
+
+// ── Teachers ──────────────────────────────────────────────────────────────────
+async function loadTeachers() {
+  try {
+    teachersCache = await apiFetch('/teachers/?limit=100');
+    const tbody = document.getElementById('teachersTableBody');
+    if (!teachersCache.length) { showEmpty('teachersTableBody', 6, 'No teachers found'); return; }
+    tbody.innerHTML = teachersCache.map(t => `
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--green);font-size:14px;">${(t.user?.full_name||'?').charAt(0)}</div>
+          <div><div style="font-weight:500">${escHtml(t.user?.full_name||'—')}</div><div style="font-size:12px;color:var(--muted)">${escHtml(t.user?.email||'')}</div></div>
+        </div></td>
+        <td><code style="background:var(--bg);padding:3px 7px;border-radius:5px;font-size:12px">${escHtml(t.teacher_id)}</code></td>
+        <td>${escHtml(t.specialization||'—')}</td>
+        <td>${escHtml(t.qualification||'—')}</td>
+        <td>${t.hire_date ? new Date(t.hire_date).toLocaleDateString() : '—'}</td>
+        <td><button class="btn btn-outline btn-sm">View</button></td>
+      </tr>
+    `).join('');
+  } catch(e) { showEmpty('teachersTableBody', 6, e.message); }
+}
+
+// ── Classes ───────────────────────────────────────────────────────────────────
+async function loadClasses() {
+  try {
+    classesCache = await apiFetch('/classes/?limit=100');
+    const grid = document.getElementById('classesGrid');
+    if (!classesCache.length) { grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🏫</div><p>No classes found</p></div>'; return; }
+    grid.innerHTML = classesCache.map(c => `
+      <div class="card" style="cursor:pointer;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="width:42px;height:42px;background:var(--blue-light);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;">🏫</div>
+          <span class="badge badge-blue">Grade ${c.grade_level}</span>
+        </div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:17px;margin-bottom:4px">${escHtml(c.name)}</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">${c.academic_year} • Room ${c.room_number||'TBD'}</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)">
+          <span>Max: ${c.max_students} students</span>
+          <span class="badge ${c.is_active ? 'badge-green' : 'badge-red'}">${c.is_active ? 'Active' : 'Inactive'}</span>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('classesGrid').innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>${e.message}</p></div>`;
+  }
+}
+
+// ── Subjects ──────────────────────────────────────────────────────────────────
+async function loadSubjects() {
+  try {
+    subjectsCache = await apiFetch('/subjects/?limit=100');
+    const tbody = document.getElementById('subjectsTableBody');
+    if (!subjectsCache.length) { showEmpty('subjectsTableBody', 5, 'No subjects found'); return; }
+    tbody.innerHTML = subjectsCache.map(s => `
+      <tr>
+        <td style="font-weight:500">${escHtml(s.name)}</td>
+        <td><code style="background:var(--bg);padding:3px 7px;border-radius:5px;font-size:12px">${escHtml(s.code)}</code></td>
+        <td>${s.grade_level ? `Grade ${s.grade_level}` : '—'}</td>
+        <td>${s.credit_hours}h</td>
+        <td><span class="badge ${s.is_active ? 'badge-green' : 'badge-red'}">${s.is_active ? 'Active' : 'Inactive'}</span></td>
+      </tr>
+    `).join('');
+  } catch(e) { showEmpty('subjectsTableBody', 5, e.message); }
+}
+
+// ── Assignments ───────────────────────────────────────────────────────────────
+async function loadAssignments() {
+  try {
+    const data = await apiFetch('/assignments/?limit=100');
+    const tbody = document.getElementById('assignmentsTableBody');
+    if (!data.length) { showEmpty('assignmentsTableBody', 6, 'No assignments found'); return; }
+    const now = new Date();
+    tbody.innerHTML = data.map(a => {
+      const due = new Date(a.due_date);
+      const overdue = due < now;
+      const dueStr = due.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+      return `<tr>
+        <td style="font-weight:500">${escHtml(a.title)}</td>
+        <td>Subject #${a.subject_id}</td>
+        <td>Class #${a.class_id}</td>
+        <td style="color:${overdue ? 'var(--red)' : 'var(--ink)'}">${dueStr}</td>
+        <td>${a.max_score}</td>
+        <td><span class="badge ${overdue ? 'badge-red' : 'badge-green'}">${overdue ? 'Overdue' : 'Open'}</span></td>
+      </tr>`;
+    }).join('');
+  } catch(e) { showEmpty('assignmentsTableBody', 6, e.message); }
+}
+
+// ── Grades ────────────────────────────────────────────────────────────────────
+async function loadGrades() {
+  try {
+    const data = await apiFetch('/grades/?');
+    const tbody = document.getElementById('gradesTableBody');
+    if (!data.length) { showEmpty('gradesTableBody', 6, 'No grades found'); return; }
+    tbody.innerHTML = data.map(g => {
+      const pct = (g.score / g.max_score * 100).toFixed(1);
+      const color = pct >= 80 ? 'badge-green' : pct >= 60 ? 'badge-amber' : 'badge-red';
+      return `<tr>
+        <td>Student #${g.student_id}</td>
+        <td>Subject #${g.subject_id}</td>
+        <td>${escHtml(g.exam_name)}</td>
+        <td>${g.score} / ${g.max_score} <span style="color:var(--muted);font-size:12px">(${pct}%)</span></td>
+        <td><span class="badge ${color}">${g.grade_letter || '—'}</span></td>
+        <td>${g.academic_year || '—'}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) { showEmpty('gradesTableBody', 6, e.message); }
+}
+
+// ── Attendance ────────────────────────────────────────────────────────────────
+async function loadAttendance() {
+  const from = document.getElementById('attFrom')?.value;
+  const to = document.getElementById('attTo')?.value;
+  let url = '/attendance/?limit=100';
+  if (from) url += `&from_date=${from}`;
+  if (to) url += `&to_date=${to}`;
+  try {
+    const data = await apiFetch(url);
+    const tbody = document.getElementById('attendanceTableBody');
+    if (!data.length) { showEmpty('attendanceTableBody', 5, 'No records found'); return; }
+    const statusColors = { present: 'badge-green', absent: 'badge-red', late: 'badge-amber', excused: 'badge-purple' };
+    tbody.innerHTML = data.map(a => `<tr>
+      <td>${new Date(a.date).toLocaleDateString()}</td>
+      <td>Student #${a.student_id}</td>
+      <td>Class #${a.class_id}</td>
+      <td><span class="badge ${statusColors[a.status]||'badge-blue'}">${a.status}</span></td>
+      <td>${a.notes || '—'}</td>
+    </tr>`).join('');
+  } catch(e) { showEmpty('attendanceTableBody', 5, e.message); }
+}
+
+// ── Announcements Page ────────────────────────────────────────────────────────
+async function loadAnnouncementsPage() {
+  try {
+    const data = await apiFetch('/announcements/?limit=50');
+    const el = document.getElementById('announcementsPageList');
+    if (!data.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>No announcements</p></div>'; return; }
+    el.innerHTML = data.map(a => `
+      <div class="card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              ${a.is_pinned ? '<span class="badge badge-amber">📌 Pinned</span>' : ''}
+              <span class="badge badge-blue">${a.target_audience}</span>
+            </div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:8px">${escHtml(a.title)}</div>
+            <p style="color:var(--ink2);font-size:14px;line-height:1.6">${escHtml(a.content)}</p>
+          </div>
+          <div style="font-size:12px;color:var(--muted);white-space:nowrap">${new Date(a.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('announcementsPageList').innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>${e.message}</p></div>`;
+  }
+}
+
+// ── Fees ──────────────────────────────────────────────────────────────────────
+async function loadFees() {
+  const status = document.getElementById('feeStatusFilter')?.value;
+  let url = '/fees/?limit=200';
+  if (status) url += `&status=${status}`;
+  try {
+    const data = await apiFetch(url);
+    const tbody = document.getElementById('feesTableBody');
+    if (!data.length) { showEmpty('feesTableBody', 8, 'No fee records found'); return; }
+    const statusColors = { paid: 'badge-green', pending: 'badge-amber', partial: 'badge-purple', overdue: 'badge-red' };
+    tbody.innerHTML = data.map(f => `<tr>
+      <td>Student #${f.student_id}</td>
+      <td>${escHtml(f.fee_type)}</td>
+      <td>$${f.amount.toLocaleString()}</td>
+      <td>$${f.paid_amount.toLocaleString()}</td>
+      <td style="font-weight:600;color:${f.amount-f.paid_amount > 0 ? 'var(--red)' : 'var(--green)'}">$${(f.amount-f.paid_amount).toFixed(2)}</td>
+      <td>${new Date(f.due_date).toLocaleDateString()}</td>
+      <td><span class="badge ${statusColors[f.status]||'badge-blue'}">${f.status}</span></td>
+      <td>${f.status !== 'paid' ? `<button class="btn btn-success btn-sm" onclick="recordPayment(${f.id},${f.amount-f.paid_amount})">Pay</button>` : '<span style="color:var(--green)">✓ Paid</span>'}</td>
+    </tr>`).join('');
+  } catch(e) { showEmpty('feesTableBody', 8, e.message); }
+}
+
+// ── CRUD Actions ──────────────────────────────────────────────────────────────
+async function createUser() {
+  try {
+    await apiFetch('/users/', {
+      method: 'POST',
+      body: JSON.stringify({
+        full_name: val('newFullName'), username: val('newUsername'),
+        email: val('newEmail'), phone: val('newPhone'),
+        role: val('newRole'), password: val('newPassword'),
+      })
+    });
+    closeModal('addUserModal'); showToast('User created successfully!', 'success');
+    loadStudents(); loadTeachers();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function createClass() {
+  try {
+    await apiFetch('/classes/', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: val('className'), grade_level: val('classGrade'),
+        section: val('classSection'), academic_year: val('classYear'),
+        room_number: val('classRoom'), max_students: parseInt(val('classMax')) || 40,
+      })
+    });
+    closeModal('addClassModal'); showToast('Class created!', 'success'); loadClasses();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function createSubject() {
+  try {
+    await apiFetch('/subjects/', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: val('subjectName'), code: val('subjectCode'),
+        grade_level: val('subjectGrade'), credit_hours: parseInt(val('subjectCredits')) || 3,
+        description: val('subjectDesc'),
+      })
+    });
+    closeModal('addSubjectModal'); showToast('Subject added!', 'success'); loadSubjects();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function createGrade() {
+  try {
+    await apiFetch('/grades/', {
+      method: 'POST',
+      body: JSON.stringify({
+        student_id: parseInt(val('gradeStudentId')), subject_id: parseInt(val('gradeSubjectId')),
+        class_id: parseInt(val('gradeClassId')), exam_name: val('gradeExamName'),
+        exam_type: val('gradeExamType'), score: parseFloat(val('gradeScore')),
+        max_score: parseFloat(val('gradeMax')) || 100,
+      })
+    });
+    closeModal('addGradeModal'); showToast('Grade recorded!', 'success'); loadGrades();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function createAnnouncement() {
+  try {
+    await apiFetch('/announcements/', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: val('annTitle'), content: val('annContent'),
+        target_audience: val('annTarget'), is_pinned: val('annPinned') === 'true',
+      })
+    });
+    closeModal('addAnnouncementModal'); showToast('Announcement posted!', 'success');
+    loadAnnouncementsPage(); loadAnnouncements();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function createFee() {
+  try {
+    await apiFetch('/fees/', {
+      method: 'POST',
+      body: JSON.stringify({
+        student_id: parseInt(val('feeStudentId')), fee_type: val('feeType'),
+        amount: parseFloat(val('feeAmount')), due_date: val('feeDueDate'),
+        academic_year: val('feeYear'), term: val('feeTerm'),
+      })
+    });
+    closeModal('addFeeModal'); showToast('Fee created!', 'success'); loadFees();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function recordPayment(feeId, balance) {
+  const amount = parseFloat(prompt(`Enter payment amount (balance: $${balance.toFixed(2)})`));
+  if (!amount || isNaN(amount)) return;
+  try {
+    await apiFetch(`/fees/${feeId}/pay`, {
+      method: 'POST',
+      body: JSON.stringify({ paid_amount: amount })
+    });
+    showToast('Payment recorded!', 'success'); loadFees();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ── Notifications ──────────────────────────────────────────────────────────────
+async function checkNotifications() {
+  try {
+    const data = await apiFetch('/notifications/?unread_only=true');
+    const dot = document.getElementById('notifDot');
+    if (data.length > 0) { dot.style.display = 'block'; }
+  } catch(e) {}
+}
+
+async function loadNotifications() {
+  try {
+    const data = await apiFetch('/notifications/');
+    if (!data.length) { showToast('No notifications', ''); return; }
+    showToast(`${data.filter(n=>!n.is_read).length} unread notifications`, 'success');
+    apiFetch('/notifications/read-all', { method: 'PUT' }).catch(() => {});
+    document.getElementById('notifDot').style.display = 'none';
+  } catch(e) {}
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+function val(id) { return (document.getElementById(id)?.value || '').trim(); }
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showEmpty(tbodyId, cols, msg) {
+  const el = document.getElementById(tbodyId);
+  if (el) el.innerHTML = `<tr><td colspan="${cols}"><div class="empty-state"><div class="empty-icon">📭</div><p>${escHtml(msg)}</p></div></td></tr>`;
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Close modal on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+function timeAgo(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
+}
+
+function showToast(msg, type = '') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = (type === 'success' ? '✓ ' : type === 'error' ? '✕ ' : 'ℹ ') + msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3100);
+}
+
+function logout() {
+  apiFetch('/auth/logout', { method: 'POST' }).catch(() => {});
+  localStorage.clear();
+  window.location.href = '/';
+}
+
+function viewStudent(id) { showToast(`Opening student profile #${id}…`, ''); }
+</script>
+</body>
+</html>
