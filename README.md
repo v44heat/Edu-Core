@@ -218,7 +218,7 @@ UPLOAD_DIR=uploads
 ### 5. Create the Database
 
 ```bash
-psql -U postgres -c "CREATE DATABASE school_mgmt;"
+psql -U postgres -c "CREATE DATABASE school_mgmt;"  I recommend using te pgadmin interface for easier navigation and avoiding errors
 ```
 
 ### 6. Seed Sample Data
