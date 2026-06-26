@@ -1,12 +1,9 @@
--- ============================================================
---  EduCore School Management System — PostgreSQL Schema
---  Run: psql -U postgres -d school_mgmt -f schema.sql
--- ============================================================
+
 
 CREATE DATABASE school_mgmt;
 \c school_mgmt;
 
--- Enable pgcrypto for UUID generation
+
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- ── ENUMS ────────────────────────────────────────────────────────────────────
